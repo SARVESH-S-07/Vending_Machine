@@ -4,7 +4,7 @@
 To design and simulate a Vending Machine Controller using Verilog HDL, and verify its functionality using a testbench in Vivado.
 
 # Apparatus required:
-Vivad0 
+Vivado
 
 # Problem Statement
 Design a vending machine that:
@@ -88,7 +88,67 @@ endmodule
 ```
 # Testbench
 ```
+module tb_vending_machine;
 
+reg clk;
+reg reset;
+reg coin5;
+reg coin10;
+wire dispense;
+
+vending_machine uut (
+    .clk(clk),
+    .reset(reset),
+    .coin5(coin5),
+    .coin10(coin10),
+    .dispense(dispense)
+);
+
+always #5 clk = ~clk;
+
+initial
+begin
+    clk = 0;
+    reset = 1;
+    coin5 = 0;
+    coin10 = 0;
+
+    #10;
+    reset = 0;
+
+    // Test 1: 5 + 10 = 15 (Dispense)
+    #10 coin5 = 1;
+    #10 coin5 = 0;
+
+    #10 coin10 = 1;
+    #10 coin10 = 0;
+
+    // Test 2: 10 + 5 = 15 (Dispense)
+    #20;
+    coin10 = 1;
+    #10 coin10 = 0;
+
+    #10 coin5 = 1;
+    #10 coin5 = 0;
+
+    // Test 3: 5 + 5 + 5 = 15 (Dispense)
+    #20;
+    repeat(3)
+    begin
+        coin5 = 1;
+        #10 coin5 = 0;
+        #10;
+    end
+    $finish;
+end
+
+initial
+begin
+    $monitor("Time=%0t Reset=%b Coin5=%b Coin10=%b Dispense=%b",
+             $time, reset, coin5, coin10, dispense);
+end
+
+endmodule
 ```
 Expected Waveform Behavior
 Case 1: 5 + 5 + 5
@@ -101,7 +161,10 @@ Case 3: 10 + 10
    dispense = 1
    change = 1
 
+
 # Output waveform 
+<img width="1001" height="821" alt="image" src="https://github.com/user-attachments/assets/a556bb40-f0dd-472e-a3e4-6f75149931e6" />
+
 
 # Conclusion
 The vending machine controller was successfully designed using a Moore FSM model. The simulation verified correct product dispensing and change return behavior for different coin inputs.
